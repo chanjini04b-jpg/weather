@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import os
 from streamlit_js_eval import streamlit_js_eval
 from weather_radar import show_weather_radar
 # 로그 저장용 리스트
@@ -30,7 +31,7 @@ def check_api_connection():
 # 내 위치 연결 상태 체크 함수 (상단 표시)
 def show_location_connection_status():
     my_city = get_current_city()
-    city_eng = korean_to_english.get(my_city, my_city)
+    city_eng = city_map.get(my_city, my_city)
     url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
     try:
         response = requests.get(url, timeout=5)
@@ -91,26 +92,47 @@ def get_weather_data(lat, lon, units='metric', lang='kr'):
     else:
         st.error(f"OpenWeather API 호출에 실패했습니다. (상태 코드: {response.status_code})")
         return None
-korean_to_english = {
-    "서울": "Seoul",
-    "인천": "Incheon",
-    "대전": "Daejeon",
-    "대구": "Daegu",
-    "광주": "Gwangju",
-    "부산": "Busan",
-    "울산": "Ulsan",
-    "세종": "Sejong",
-    "경기도": "Gyeonggi-do",
-    "강원도": "Gangwon-do",
-    "충청북도": "Chungcheongbuk-do",
-    "충청남도": "Chungcheongnam-do",
-    "전라북도": "Jeollabuk-do",
-    "전라남도": "Jeollanam-do",
-    "경상북도": "Gyeongsangbuk-do",
-    "경상남도": "Gyeongsangnam-do",
-    "제주도": "Jeju-do"
-}
-korean_cities = list(korean_to_english.keys())
+
+import json
+with open('city_map.json', encoding='utf-8') as f:
+    city_map = json.load(f)
+korean_cities = list(city_map.keys())
+
+# 공통 날씨/주간 카드 함수
+def show_city_weather(city_name, location=False):
+    city_eng = city_map.get(city_name, city_name)
+    if city_name == "김포":
+        lat, lon = 37.6153, 126.7159
+        url = f"{BASE_URL}?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
+    else:
+        url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        weather_card(data, city_name, location=location)
+        st.session_state.last_city_weather = data
+        st.session_state.last_city_name = city_name
+        return data
+    else:
+        st.error(f"[{city_name}] 날씨 정보를 가져올 수 없습니다. (상태 코드: {response.status_code})")
+        return None
+
+def show_weekly_weather(city_name, data=None):
+    if data is None:
+        data = show_city_weather(city_name)
+    if data:
+        lat, lon = data['coord']['lat'], data['coord']['lon']
+        forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&lang=kr&appid={API_KEY}"
+        resp_forecast = requests.get(forecast_url)
+        if resp_forecast.status_code == 200:
+            forecast_data = resp_forecast.json()
+            forecast_list = forecast_data.get('list', [])
+            if forecast_list:
+                weekly_weather_card(forecast_list, city_name)
+            else:
+                st.warning("주간 예보 데이터가 없습니다.")
+        else:
+            st.warning("주간 날씨 정보를 가져올 수 없습니다.")
 
 def get_current_city():
     try:
@@ -118,7 +140,7 @@ def get_current_city():
         if res.status_code == 200:
             info = res.json()
             city = info.get("city", "서울")
-            for k, v in korean_to_english.items():
+            for k, v in city_map.items():
                 if v.lower() == city.lower():
                     return k
             return city
@@ -151,8 +173,12 @@ def weather_card(data, city_name, location=False):
     }
     icon_code = data['weather'][0]['icon']
     image_file = icon_map.get(icon_code, 'sunny.jpg')
-    # Streamlit Cloud 환경에서는 로컬 이미지 대신 OpenWeather 공식 아이콘 URL 사용
-    image_path = f"https://openweathermap.org/img/wn/{icon_code}@4x.png"
+    # 로컬 환경이면 images 폴더의 이미지 사용, 아니면 OpenWeather 아이콘 URL 사용
+    local_image_path = os.path.join('images', image_file)
+    if os.path.exists(local_image_path):
+        image_path = local_image_path
+    else:
+        image_path = f"https://openweathermap.org/img/wn/{icon_code}@4x.png"
     card_height = 260
     # 미세먼지/체감온도 등 추가 정보
     feels_like = data['main'].get('feels_like', None)
