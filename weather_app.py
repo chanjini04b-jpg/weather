@@ -128,11 +128,12 @@ def get_current_city():
 
 def weather_card(data, city_name, location=False):
     # 아이콘 코드와 이미지 파일명 매핑 객체
+    # images 폴더 내 실제 파일명 기반 자동 매핑
     icon_map = {
         '01d': 'sunny.jpg',
         '01n': 'sunny.jpg',
-            '02d': 'partly_cloudy.jpg',  # corrected from 'parrtly cloudy'
-            '02n': 'partly_cloudy.jpg',  # corrected from 'parrtly cloudy'
+        '02d': 'parrtly cloudy.jpg',
+        '02n': 'parrtly cloudy.jpg',
         '03d': 'cloudy.jpg',
         '03n': 'cloudy.jpg',
         '04d': 'overcast.jpg',
