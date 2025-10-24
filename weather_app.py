@@ -131,8 +131,8 @@ def weather_card(data, city_name, location=False):
     icon_map = {
         '01d': 'sunny.jpg',
         '01n': 'sunny.jpg',
-        '02d': 'partly_cloudy.jpg',
-        '02n': 'partly_cloudy.jpg',
+            '02d': 'partly_cloudy.jpg',  # corrected from 'parrtly cloudy'
+            '02n': 'partly_cloudy.jpg',  # corrected from 'parrtly cloudy'
         '03d': 'cloudy.jpg',
         '03n': 'cloudy.jpg',
         '04d': 'overcast.jpg',
