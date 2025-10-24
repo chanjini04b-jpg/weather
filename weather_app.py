@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from streamlit_js_eval import streamlit_js_eval
+from weather_radar import show_weather_radar
 # 로그 저장용 리스트
 if 'weather_logs' not in st.session_state:
     st.session_state.weather_logs = []
@@ -129,46 +130,61 @@ def weather_card(data, city_name, location=False):
     # 아이콘 코드와 이미지 파일명 매핑 객체
     icon_map = {
         '01d': 'sunny.jpg',
-        '01n': 'sunny_night.jpg',
+        '01n': 'sunny.jpg',
         '02d': 'partly_cloudy.jpg',
-        '02n': 'partly_cloudy_night.jpg',
+        '02n': 'partly_cloudy.jpg',
         '03d': 'cloudy.jpg',
-        '03n': 'cloudy_night.jpg',
+        '03n': 'cloudy.jpg',
         '04d': 'overcast.jpg',
-        '04n': 'overcast_night.jpg',
+        '04n': 'overcast.jpg',
         '09d': 'showers.jpg',
-        '09n': 'showers_night.jpg',
+        '09n': 'showers.jpg',
         '10d': 'rain.jpg',
-        '10n': 'rain_night.jpg',
+        '10n': 'rain.jpg',
         '11d': 'thunderstorm.jpg',
-        '11n': 'thunderstorm_night.jpg',
+        '11n': 'thunderstorm.jpg',
         '13d': 'snow.jpg',
-        '13n': 'snow_night.jpg',
+        '13n': 'snow.jpg',
         '50d': 'mist.jpg',
-        '50n': 'mist_night.jpg',
+        '50n': 'mist.jpg',
     }
     icon_code = data['weather'][0]['icon']
     image_file = icon_map.get(icon_code, 'sunny.jpg')
-    # Streamlit static file path fix: use /images/ for public folder
     image_path = f"/images/{image_file}"
-    col_card, col_img = st.columns([2,1], gap="small")
-    card_height = 220
-    with col_card:
-        st.markdown(f"""
-            <div style='position: relative; border-radius: 1rem; box-shadow: 0 2px 8px #0002; margin-bottom: 1.5rem; min-height: {card_height}px; height: {card_height}px; width: 100%; background: #2b5876; padding: 2rem; display: flex; flex-direction: column; justify-content: center;'>
-                <h2 style='margin:0; color:#fff; text-shadow: 0 2px 8px #0006; font-size:clamp(1.2rem,3vw,2.2rem);'>{city_name}{' (내 위치)' if location else ''}</h2>
-                <h1 style='margin:0; font-size:clamp(2rem,6vw,3.5rem); color:#fff; text-shadow: 0 2px 8px #0006;'>{data['main']['temp']}°C</h1>
-                <p style='margin:0; font-size:clamp(1rem,3vw,1.5rem); color:#fff; text-shadow: 0 2px 8px #0006;'>{data['weather'][0]['description'].capitalize()}</p>
-                <div style='margin-top:1rem; color:#fff; text-shadow: 0 2px 8px #0006; font-size:clamp(0.9rem,2vw,1.2rem);'>
+    card_height = 260
+    # 미세먼지/체감온도 등 추가 정보
+    feels_like = data['main'].get('feels_like', None)
+    # 카드 디자인 개선: 그라데이션, 이미지 오버레이, 애니메이션 효과, 정보 배치 개선
+    st.markdown(f"""
+        <div style='position: relative; border-radius: 1.2rem; box-shadow: 0 4px 16px #0003; margin-bottom: 2rem; min-height: {card_height}px; height: {card_height}px; width: 100%; overflow: hidden; background: linear-gradient(120deg, #2b5876 0%, #4e4376 100%); display: flex; align-items: stretch;'>
+            <div style='flex:2; padding:2.2rem 2rem; display:flex; flex-direction:column; justify-content:center; z-index:2;'>
+                <h2 style='margin:0; color:#fff; text-shadow: 0 2px 8px #0006; font-size:clamp(1.2rem,3vw,2.2rem); font-family: "Pretendard", "Noto Sans KR", sans-serif;'>{city_name}{' <span style="font-size:1rem; color:#ffd700;">(내 위치)</span>' if location else ''}</h2>
+                <h1 style='margin:0; font-size:clamp(2.2rem,6vw,3.7rem); color:#fff; text-shadow: 0 2px 8px #0006; font-family: "Pretendard", "Noto Sans KR", sans-serif;'>
+                    <span style="display:inline-block; animation: tempPop 0.7s cubic-bezier(.68,-0.55,.27,1.55) 1;">{data['main']['temp']}°C</span>
+                </h1>
+                <p style='margin:0; font-size:clamp(1.1rem,3vw,1.6rem); color:#fff; text-shadow: 0 2px 8px #0006; font-family: "Pretendard", "Noto Sans KR", sans-serif;'>
+                    {data['weather'][0]['description'].capitalize()}
+                </p>
+                <div style='margin-top:1.2rem; color:#fff; text-shadow: 0 2px 8px #0006; font-size:clamp(1rem,2vw,1.3rem); font-family: "Pretendard", "Noto Sans KR", sans-serif;'>
                     <span>습도: {data['main']['humidity']}%</span> | <span>풍속: {data['wind']['speed']} m/s</span>
+                    {'| <span>체감온도: ' + str(feels_like) + '°C</span>' if feels_like is not None else ''}
                 </div>
             </div>
-        """, unsafe_allow_html=True)
-    with col_img:
-        img_html = f"""
-            <img src='{image_path}' style='height:{card_height}px; width:100%; object-fit:cover; border-radius:1rem; box-shadow:0 2px 8px #0002;'>
-        """
-        st.markdown(img_html, unsafe_allow_html=True)
+            <div style='flex:1; position:relative; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.03);'>
+                <img src='{image_path}' style='height:{card_height}px; width:100%; object-fit:cover; border-radius:0 1.2rem 1.2rem 0; box-shadow:0 2px 8px #0002; filter:brightness(0.98) drop-shadow(0 2px 8px #0002); z-index:1;'>
+                <div style='position:absolute; top:10px; right:10px; z-index:2;'>
+                    <span style="background:rgba(255,255,255,0.7); border-radius:0.7rem; padding:0.3rem 0.7rem; font-size:1.1rem; color:#333; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; box-shadow:0 2px 8px #0001;">{data['weather'][0]['main']}</span>
+                </div>
+            </div>
+        </div>
+        <style>
+        @keyframes tempPop {{
+            0% {{ transform: scale(0.7); opacity:0; }}
+            70% {{ transform: scale(1.15); opacity:1; }}
+            100% {{ transform: scale(1); opacity:1; }}
+        }}
+        </style>
+    """, unsafe_allow_html=True)
 
 # 주간 날씨 카드
 def weekly_weather_card(daily_list, city_name):
@@ -216,6 +232,30 @@ def weekly_weather_card(daily_list, city_name):
     st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
  
 st.markdown("<h1 style='text-align:center; color:#2b5876;'>🌤️ 날씨 웹앱</h1>", unsafe_allow_html=True)
+
+import time
+# 실시간 기상 레이더 지도 표시 버튼
+with st.expander("실시간 기상 레이더 지도 보기", expanded=False):
+    st.markdown("<b>정확한 GPS 위치를 사용하려면 브라우저 위치 권한을 허용하세요.</b>", unsafe_allow_html=True)
+    radar_col1, radar_col2 = st.columns([1,1])
+    with radar_col1:
+        radar_gps_btn = st.button("내 위치 기반 레이더 지도 열기")
+    with radar_col2:
+        radar_korea_btn = st.button("한국 중심 레이더 지도 열기")
+    if radar_gps_btn:
+        coords = streamlit_js_eval(
+            js_expressions="new Promise((resolve, reject) => {navigator.geolocation.getCurrentPosition((pos) => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}), (err) => resolve({error: err.message}) )})",
+            key="radar_gps"
+        )
+        time.sleep(0.5)
+        if coords and "lat" in coords and "lon" in coords:
+            show_weather_radar(center_lat=coords["lat"], center_lon=coords["lon"])
+        elif coords and "error" in coords:
+            st.error(f"브라우저 위치 권한 오류: {coords['error']}")
+        else:
+            st.error("브라우저 위치 권한을 허용해야 내 위치 기반 지도를 볼 수 있습니다.")
+    elif radar_korea_btn:
+        show_weather_radar()
 
 # 3가지 선택 라디오
 option = st.radio("날씨 조회 방법을 선택하세요", ["내 위치 기반", "도시 선택", "도시명 입력"], horizontal=True)
