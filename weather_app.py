@@ -151,7 +151,8 @@ def weather_card(data, city_name, location=False):
     }
     icon_code = data['weather'][0]['icon']
     image_file = icon_map.get(icon_code, 'sunny.jpg')
-    image_path = f"images/{image_file}"
+    # Streamlit Cloud 환경에서는 로컬 이미지 대신 OpenWeather 공식 아이콘 URL 사용
+    image_path = f"http://openweathermap.org/img/wn/{icon_code}@4x.png"
     card_height = 260
     # 미세먼지/체감온도 등 추가 정보
     feels_like = data['main'].get('feels_like', None)
