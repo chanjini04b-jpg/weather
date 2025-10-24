@@ -151,7 +151,7 @@ def weather_card(data, city_name, location=False):
     }
     icon_code = data['weather'][0]['icon']
     image_file = icon_map.get(icon_code, 'sunny.jpg')
-    image_path = f"/images/{image_file}"
+    image_path = f"images/{image_file}"
     card_height = 260
     # 미세먼지/체감온도 등 추가 정보
     feels_like = data['main'].get('feels_like', None)
