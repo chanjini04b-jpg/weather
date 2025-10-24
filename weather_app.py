@@ -241,9 +241,9 @@ with st.expander("실시간 기상 레이더 지도 보기", expanded=False):
     st.markdown("<b>정확한 GPS 위치를 사용하려면 브라우저 위치 권한을 허용하세요.</b>", unsafe_allow_html=True)
     radar_col1, radar_col2 = st.columns([1,1])
     with radar_col1:
-        radar_gps_btn = st.button("내 위치 기반 레이더 지도 열기")
+    radar_gps_btn = st.button("내 위치 기반 레이더 지도 열기", key="radar_gps_btn")
     with radar_col2:
-        radar_korea_btn = st.button("한국 중심 레이더 지도 열기")
+    radar_korea_btn = st.button("한국 중심 레이더 지도 열기", key="radar_korea_btn")
     if radar_gps_btn:
         coords = streamlit_js_eval(
             js_expressions="new Promise((resolve, reject) => {navigator.geolocation.getCurrentPosition((pos) => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}), (err) => resolve({error: err.message}) )})",
@@ -260,7 +260,7 @@ with st.expander("실시간 기상 레이더 지도 보기", expanded=False):
         show_weather_radar()
 
 # 3가지 선택 라디오
-option = st.radio("날씨 조회 방법을 선택하세요", ["내 위치 기반", "도시 선택", "도시명 입력"], horizontal=True)
+option = st.radio("날씨 조회 방법을 선택하세요", ["내 위치 기반", "도시 선택", "도시명 입력"], horizontal=True, key="main_radio")
 
 if option == "내 위치 기반":
     st.markdown("<b>정확한 GPS 위치를 사용하려면 브라우저 위치 권한을 허용하세요.</b>", unsafe_allow_html=True)
@@ -270,9 +270,9 @@ if option == "내 위치 기반":
     )
     col_gps1, col_gps2 = st.columns([1,1])
     with col_gps1:
-        gps_weather_clicked = st.button("내 위치 날씨 카드 보기")
+    gps_weather_clicked = st.button("내 위치 날씨 카드 보기", key="gps_weather_btn")
     with col_gps2:
-        gps_weekly_clicked = st.button("내 위치 주간 날씨 테이블 보기")
+    gps_weekly_clicked = st.button("내 위치 주간 날씨 테이블 보기", key="gps_weekly_btn")
     if gps_weather_clicked or gps_weekly_clicked:
         if coords and "lat" in coords and "lon" in coords:
             lat, lon = coords["lat"], coords["lon"]
@@ -320,7 +320,7 @@ elif option == "도시 선택":
     korea_cities = [
         "서울", "부산", "인천", "대구", "광주", "대전", "울산", "세종", "수원", "성남", "고양", "용인", "부천", "안산", "남양주", "화성", "평택", "의정부", "시흥", "파주", "김포", "광명", "광주(경기)", "군포", "오산", "이천", "안양", "구리", "안성", "포천", "하남", "양주", "여주", "동두천", "과천", "춘천", "원주", "강릉", "동해", "속초", "삼척", "태백", "홍천", "철원", "화천", "양구", "인제", "고성", "양양", "청주", "충주", "제천", "보은", "옥천", "영동", "증평", "진천", "괴산", "음성", "단양", "천안", "공주", "보령", "아산", "서산", "논산", "계룡", "당진", "금산", "부여", "서천", "청양", "홍성", "예산", "태안", "전주", "군산", "익산", "정읍", "남원", "김제", "완주", "진안", "무주", "장수", "임실", "순창", "고창", "부안", "목포", "여수", "순천", "나주", "광양", "담양", "곡성", "구례", "고흥", "보성", "화순", "장흥", "강진", "해남", "영암", "무안", "함평", "영광", "장성", "완도", "신안", "포항", "경주", "김천", "안동", "구미", "영주", "영천", "상주", "문경", "경산", "군위", "의성", "청송", "영양", "영덕", "청도", "고령", "성주", "칠곡", "예천", "봉화", "울진", "울릉", "창원", "진주", "통영", "사천", "김해", "밀양", "거제", "양산", "의령", "함안", "창녕", "고성(경남)", "남해", "하동", "산청", "함양", "거창", "합천", "제주", "서귀포"
     ]
-    city_select = st.selectbox("도시를 선택하세요", korea_cities, index=korea_cities.index("서울") if "서울" in korea_cities else 0)
+    city_select = st.selectbox("도시를 선택하세요", korea_cities, index=korea_cities.index("서울") if "서울" in korea_cities else 0, key="city_select")
     city_map = {
         "서울": "Seoul", "부산": "Busan", "인천": "Incheon", "대구": "Daegu", "광주": "Gwangju", "대전": "Daejeon", "울산": "Ulsan", "세종": "Sejong",
         "수원": "Suwon", "성남": "Seongnam", "고양": "Goyang", "용인": "Yongin", "부천": "Bucheon", "안산": "Ansan", "남양주": "Namyangju", "화성": "Hwaseong",
@@ -351,9 +351,9 @@ elif option == "도시 선택":
         url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
     col_city1, col_city2 = st.columns([1,1])
     with col_city1:
-        city_weather_clicked = st.button('도시 날씨 카드 보기')
+    city_weather_clicked = st.button('도시 날씨 카드 보기', key="city_weather_btn")
     with col_city2:
-        city_weekly_clicked = st.button('주간 날씨 테이블 보기')
+    city_weekly_clicked = st.button('주간 날씨 테이블 보기', key="city_weekly_btn")
     if city_weather_clicked or city_weekly_clicked:
         response = requests.get(url)
         if response.status_code == 200:
@@ -384,7 +384,7 @@ elif option == "도시 선택":
             st.session_state.weather_logs.append(f"[{city_select}] 오류: API 호출 실패. 상태 코드: {response.status_code}")
             st.error(f"오류: API 호출 실패. 상태 코드: {response.status_code}")
 elif option == "도시명 입력":
-    city_input = st.text_input("도시명을 입력하세요 (한글/영문)", "")
+    city_input = st.text_input("도시명을 입력하세요 (한글/영문)", "", key="city_input")
     city_final = city_input.strip()
     city_map = {
         "서울": "Seoul", "부산": "Busan", "인천": "Incheon", "대구": "Daegu", "광주": "Gwangju", "대전": "Daejeon", "울산": "Ulsan", "세종": "Sejong",
@@ -416,9 +416,9 @@ elif option == "도시명 입력":
         url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
     col_input1, col_input2 = st.columns([1,1])
     with col_input1:
-        input_weather_clicked = st.button('도시 날씨 카드 보기')
+    input_weather_clicked = st.button('도시 날씨 카드 보기', key="input_weather_btn")
     with col_input2:
-        input_weekly_clicked = st.button('주간 날씨 테이블 보기')
+    input_weekly_clicked = st.button('주간 날씨 테이블 보기', key="input_weekly_btn")
     if input_weather_clicked or input_weekly_clicked:
         response = requests.get(url)
         if response.status_code == 200:
