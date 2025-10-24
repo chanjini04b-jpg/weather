@@ -241,9 +241,9 @@ with st.expander("실시간 기상 레이더 지도 보기", expanded=False):
     st.markdown("<b>정확한 GPS 위치를 사용하려면 브라우저 위치 권한을 허용하세요.</b>", unsafe_allow_html=True)
     radar_col1, radar_col2 = st.columns([1,1])
     with radar_col1:
-    radar_gps_btn = st.button("내 위치 기반 레이더 지도 열기", key="radar_gps_btn")
+        radar_gps_btn = st.button("내 위치 기반 레이더 지도 열기", key="radar_gps_btn")
     with radar_col2:
-    radar_korea_btn = st.button("한국 중심 레이더 지도 열기", key="radar_korea_btn")
+        radar_korea_btn = st.button("한국 중심 레이더 지도 열기", key="radar_korea_btn")
     if radar_gps_btn:
         coords = streamlit_js_eval(
             js_expressions="new Promise((resolve, reject) => {navigator.geolocation.getCurrentPosition((pos) => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}), (err) => resolve({error: err.message}) )})",
@@ -270,9 +270,9 @@ if option == "내 위치 기반":
     )
     col_gps1, col_gps2 = st.columns([1,1])
     with col_gps1:
-    gps_weather_clicked = st.button("내 위치 날씨 카드 보기", key="gps_weather_btn")
+        gps_weather_clicked = st.button("내 위치 날씨 카드 보기", key="gps_weather_btn")
     with col_gps2:
-    gps_weekly_clicked = st.button("내 위치 주간 날씨 테이블 보기", key="gps_weekly_btn")
+        gps_weekly_clicked = st.button("내 위치 주간 날씨 테이블 보기", key="gps_weekly_btn")
     if gps_weather_clicked or gps_weekly_clicked:
         if coords and "lat" in coords and "lon" in coords:
             lat, lon = coords["lat"], coords["lon"]
@@ -351,9 +351,9 @@ elif option == "도시 선택":
         url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
     col_city1, col_city2 = st.columns([1,1])
     with col_city1:
-    city_weather_clicked = st.button('도시 날씨 카드 보기', key="city_weather_btn")
+        city_weather_clicked = st.button('도시 날씨 카드 보기', key="city_weather_btn")
     with col_city2:
-    city_weekly_clicked = st.button('주간 날씨 테이블 보기', key="city_weekly_btn")
+        city_weekly_clicked = st.button('주간 날씨 테이블 보기', key="city_weekly_btn")
     if city_weather_clicked or city_weekly_clicked:
         response = requests.get(url)
         if response.status_code == 200:
@@ -416,9 +416,9 @@ elif option == "도시명 입력":
         url = f"{BASE_URL}?q={city_eng}&appid={API_KEY}&units=metric&lang=kr"
     col_input1, col_input2 = st.columns([1,1])
     with col_input1:
-    input_weather_clicked = st.button('도시 날씨 카드 보기', key="input_weather_btn")
+        input_weather_clicked = st.button('도시 날씨 카드 보기', key="input_weather_btn")
     with col_input2:
-    input_weekly_clicked = st.button('주간 날씨 테이블 보기', key="input_weekly_btn")
+        input_weekly_clicked = st.button('주간 날씨 테이블 보기', key="input_weekly_btn")
     if input_weather_clicked or input_weekly_clicked:
         response = requests.get(url)
         if response.status_code == 200:
