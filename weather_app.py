@@ -247,7 +247,7 @@ with st.expander("실시간 기상 레이더 지도 보기", expanded=False):
     if radar_gps_btn:
         coords = streamlit_js_eval(
             js_expressions="new Promise((resolve, reject) => {navigator.geolocation.getCurrentPosition((pos) => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}), (err) => resolve({error: err.message}) )})",
-            key="radar_gps"
+            key="get_gps"
         )
         time.sleep(0.5)
         if coords and "lat" in coords and "lon" in coords:
