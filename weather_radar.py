@@ -22,7 +22,7 @@ def show_weather_radar(center_lat=None, center_lon=None):
         except Exception:
             pass
     leaflet_html = f'''
-    <div id="map" style="height:400px; width:100%; border-radius:1rem; box-shadow:0 2px 8px #0002;"></div>
+    <div id="map" style="height:320px; width:100%; max-width:600px; margin:auto; border-radius:1rem; box-shadow:0 2px 8px #0002;"></div>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
@@ -39,5 +39,14 @@ def show_weather_radar(center_lat=None, center_lon=None):
       // 내 위치 마커에 도시명 표시
       L.marker([{lat}, {lon}]).addTo(map).bindPopup('{city_name}').openPopup();
     </script>
+    <style>
+    @media (max-width: 600px) {{
+        #map {{
+            height: 220px !important;
+            min-width: 100vw !important;
+            border-radius: 1rem !important;
+        }}
+    }}
+    </style>
     '''
-    components.html(leaflet_html, height=420)
+    components.html(leaflet_html, height=340)
